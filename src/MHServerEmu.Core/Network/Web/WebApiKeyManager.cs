@@ -66,7 +66,7 @@ namespace MHServerEmu.Core.Network.Web
             if (!Verify.IsTrue(string.IsNullOrWhiteSpace(name) == false, $"Invalid key name '{name}'"))
                 return null;
 
-            if (!Verify.IsTrue(access >= WebApiAccessType.None && access < WebApiAccessType.NumTypes, $"Invalid access type {access}"))
+            if (!Verify.IsTrue(Enum.IsDefined(access) && access != WebApiAccessType.NumTypes, $"Invalid access type {access}"))
                 return null;
 
             WebApiKeyData keyData = new(name, access, DateTime.UtcNow);

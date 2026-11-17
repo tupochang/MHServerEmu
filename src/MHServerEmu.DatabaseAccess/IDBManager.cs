@@ -70,6 +70,10 @@ namespace MHServerEmu.DatabaseAccess
         /// </summary>
         public bool SavePlayerData(DBAccount account);
 
+        public bool SetGazillioniteBalance(DBAccount account, long balance);
+
+        public IReadOnlyList<AccountIdentity> GetAccountIdentities();
+
         /// <summary>
         /// Loads <see cref="DBGuild"/> instances stored in the database and adds them to the provided <see cref="List{T}"/>.
         /// </summary>

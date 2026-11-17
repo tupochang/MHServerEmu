@@ -220,6 +220,34 @@ namespace MHServerEmu.DatabaseAccess.SQLite
             return false;
         }
 
+        public IReadOnlyList<AccountIdentity> GetAccountIdentities()
+        {
+            using SQLiteConnection connection = GetConnection();
+            return connection.Query<AccountIdentity>("SELECT Email, PlayerName FROM Account ORDER BY PlayerName COLLATE NOCASE, Email").AsList();
+        }
+
+        public bool SetGazillioniteBalance(DBAccount account, long balance)
+        {
+            DBPlayer player = new(account.Id) { GazillioniteBalance = balance };
+
+            lock (_writeLock)
+            {
+                try
+                {
+                    using SQLiteConnection connection = GetConnection();
+                    return connection.Execute(@"INSERT INTO Player
+                        (DbGuid, ArchiveData, StartTarget, AOIVolume, GazillioniteBalance, LastLogoutTime, Flags)
+                        VALUES (@DbGuid, @ArchiveData, @StartTarget, @AOIVolume, @GazillioniteBalance, @LastLogoutTime, @Flags)
+                        ON CONFLICT(DbGuid) DO UPDATE SET GazillioniteBalance = excluded.GazillioniteBalance", player) == 1;
+                }
+                catch (Exception e)
+                {
+                    Logger.ErrorException(e, nameof(SetGazillioniteBalance));
+                    return false;
+                }
+            }
+        }
+
         public bool LoadGuilds(List<DBGuild> outGuilds)
         {
             try

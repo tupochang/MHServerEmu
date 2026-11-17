@@ -4,6 +4,7 @@ using MHServerEmu.Core.Logging;
 using MHServerEmu.Core.Memory;
 using MHServerEmu.Core.Network;
 using MHServerEmu.Core.RateLimiting;
+using MHServerEmu.DatabaseAccess;
 using MHServerEmu.DatabaseAccess.Models;
 using MHServerEmu.Games.GameData;
 using MHServerEmu.PlayerManagement.Auth;
@@ -584,6 +585,10 @@ namespace MHServerEmu.PlayerManagement.Network
                     resultCode = (int)AccountManager.ClearFlag(email, flags);
                     break;
 
+                case AccountOperation.SetGazillioniteBalance:
+                    resultCode = (int)SetGazillioniteBalance(email, accountOperationRequest.GazillioniteBalance);
+                    break;
+
                 default:
                     Verify.IsTrue(false, $"Unhandled account operation {operation}");
                     break;
@@ -591,6 +596,28 @@ namespace MHServerEmu.PlayerManagement.Network
 
             ServiceMessage.AccountOperationResponse response = new(requestId, resultCode);
             ServerManager.Instance.SendMessageToService(GameServiceType.WebFrontend, response);
+        }
+
+        private AccountOperationResult SetGazillioniteBalance(string email, long balance)
+        {
+            if (string.IsNullOrWhiteSpace(email) || balance < 0)
+                return AccountOperationResult.GenericFailure;
+
+            // The single-account JSON backend resets migration state during account lookup.
+            if (IDBManager.Instance.VerifyAccounts == false && _playerManager.ClientManager.PlayerCount != 0)
+                return AccountOperationResult.PlayerOnline;
+
+            if (AccountManager.TryGetAccountByEmail(email, out DBAccount account) == false
+                || string.Equals(email, account.Email, StringComparison.OrdinalIgnoreCase) == false)
+                return AccountOperationResult.EmailNotFound;
+
+            // A connected or disconnecting player can still write a newer save.
+            if (_playerManager.ClientManager.GetPlayer((ulong)account.Id) != null)
+                return AccountOperationResult.PlayerOnline;
+
+            return IDBManager.Instance.SetGazillioniteBalance(account, balance)
+                ? AccountOperationResult.Success
+                : AccountOperationResult.DatabaseError;
         }
 
         private void OnSetWhitelistEnabled(in ServiceMessage.SetWhitelistEnabled setWhitelistEnabled)

@@ -17,6 +17,7 @@
 			<button id="metrics-tab-button">Metrics</button>
 			<button id="region-report-tab-button">Region Report</button>
 			<button id="create-account-tab-button">Create Account</button>
+			<button id="g-balance-tab-button">G 幣管理</button>
 		</div>
 	</div>
 
@@ -63,6 +64,21 @@
 			<input type="password" id="create-account-confirm-password" name="confirm-password" placeholder="Confirm Password" minlength="3" maxlength="64" required><br><br>
 			<button type="submit" id="create-account-submit-button">Submit</button>
 		</div>
+	</div>
+
+	<div class="content tab-content" id="g-balance-tab" lang="zh-Hant">
+		<h2>G 幣管理</h2>
+		<p>請先登出要調整的遊戲帳號。儲存後，下次登入即可看到新餘額。</p>
+		<form class="account-form" id="g-balance-form">
+			<label for="g-balance-email">帳號電子郵件</label><br>
+			<select id="g-balance-email" required>
+				<option value="">正在讀取帳號…</option>
+			</select><br><br>
+			<label for="g-balance-amount">新餘額（G）</label><br>
+			<input id="g-balance-amount" type="text" inputmode="numeric" pattern="[0-9]+" maxlength="19" required><br><br>
+			<button type="submit">儲存餘額</button>
+			<p id="g-balance-result" role="status"></p>
+		</form>
 	</div>
 
 	<script type="text/javascript" src="config.js"></script>

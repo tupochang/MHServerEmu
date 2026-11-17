@@ -22,6 +22,19 @@ namespace MHServerEmu.Core.Network.Web
         public string XForwardedFor { get => _httpRequest.Headers["X-Forwarded-For"]; }
         public string Authorization { get => _httpRequest.Headers["Authorization"]; }
 
+        public bool IsDirectLoopback =>
+            IPAddress.IsLoopback(_httpRequest.RemoteEndPoint.Address)
+            && (string.Equals(_httpRequest.Url.Host, "localhost", StringComparison.OrdinalIgnoreCase)
+                || (IPAddress.TryParse(_httpRequest.Url.IdnHost, out IPAddress host) && IPAddress.IsLoopback(host)))
+            && _httpRequest.Headers["Forwarded"] == null
+            && XForwardedFor == null
+            && _httpRequest.Headers["X-Forwarded-Host"] == null;
+
+        public string GetHeader(string name) => _httpRequest.Headers[name];
+
+        public bool HasSameOrigin(string origin) =>
+            string.Equals(origin, _httpRequest.Url.GetLeftPart(UriPartial.Authority), StringComparison.OrdinalIgnoreCase);
+
         public int StatusCode { get => _httpResponse.StatusCode; set => _httpResponse.StatusCode = value; }
 
         public WebRequestContext(HttpListenerContext httpContext)

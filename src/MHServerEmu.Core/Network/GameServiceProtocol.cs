@@ -43,6 +43,7 @@ namespace MHServerEmu.Core.Network
         SetUserLevel,
         SetFlag,
         ClearFlag,
+        SetGazillioniteBalance,
     }
 
     #endregion
@@ -835,7 +836,7 @@ namespace MHServerEmu.Core.Network
         /// [WebFrontend -> PlayerManager] Routes an account operation request to the Player Manager service.
         /// </summary>
         public readonly struct AccountOperationRequest(ulong requestId, AccountOperation operation, string email,
-            string playerName, string password, byte userLevel, int flags)
+            string playerName, string password, byte userLevel, int flags, long gazillioniteBalance)
             : IGameServiceMessage
         {
             public readonly ulong RequestId = requestId;
@@ -845,6 +846,7 @@ namespace MHServerEmu.Core.Network
             public readonly string Password = password;
             public readonly byte UserLevel = userLevel;
             public readonly int Flags = flags;
+            public readonly long GazillioniteBalance = gazillioniteBalance;
         }
 
         /// <summary>

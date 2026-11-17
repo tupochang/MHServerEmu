@@ -16,6 +16,7 @@
          * built-in access types.
          */
 
+        GazillioniteManagement = 100000,
         NumTypes,
     }
 }

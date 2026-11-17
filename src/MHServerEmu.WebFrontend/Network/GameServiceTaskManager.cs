@@ -106,11 +106,11 @@ namespace MHServerEmu.WebFrontend.Network
         /// Asynchronously requests an account operation from the Player Manager.
         /// </summary>
         public async Task<ServiceMessage.AccountOperationResponse> DoAccountOperationAsync(AccountOperation operation, string email = null,
-            string playerName = null, string password = null, byte userLevel = byte.MaxValue, int flags = 0)
+            string playerName = null, string password = null, byte userLevel = byte.MaxValue, int flags = 0, long gazillioniteBalance = -1)
         {
             var operationTask = _accountOperationTaskManager.CreateTask();
 
-            ServiceMessage.AccountOperationRequest request = new(operationTask.Id, operation, email, playerName, password, userLevel, flags);
+            ServiceMessage.AccountOperationRequest request = new(operationTask.Id, operation, email, playerName, password, userLevel, flags, gazillioniteBalance);
             ServerManager.Instance.SendMessageToService(GameServiceType.PlayerManager, request);
 
             ServiceMessage.AccountOperationResponse? response = await CompleteTaskWithTimeout(operationTask);

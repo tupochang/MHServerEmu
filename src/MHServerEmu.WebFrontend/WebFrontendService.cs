@@ -127,6 +127,8 @@ namespace MHServerEmu.WebFrontend
             _webService.RegisterHandler("/AccountManagement/SetFlag",       new AccountSetFlagWebHandler());
             _webService.RegisterHandler("/AccountManagement/ClearFlag",     new AccountClearFlagWebHandler());
 
+            _webService.RegisterHandler("/AccountManagement/SetGazillioniteBalance", new AccountSetGazillioniteBalanceWebHandler());
+
             _webService.RegisterHandler("/ServerStatus", new ServerStatusWebHandler());
             _webService.RegisterHandler("/RegionReport", new RegionReportWebHandler());
             _webService.RegisterHandler("/Metrics/Performance", new MetricsPerformanceWebHandler());
@@ -157,6 +159,7 @@ namespace MHServerEmu.WebFrontend
             if (localPath.EndsWith('/') == false)
                 localPath = $"{localPath}/";
 
+            _webService.RegisterHandler("/LocalDashboard/Gazillionite", new AccountSetGazillioniteBalanceWebHandler(localDashboard: true));
             _webService.RegisterHandler(localPath, new StaticFileWebHandler(indexFilePath));
             _dashboardEndpoints.Add(localPath);
 

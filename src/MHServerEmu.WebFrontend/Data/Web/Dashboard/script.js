@@ -139,6 +139,7 @@ const tabManager = {
 
 		this.currentTabId = tabId;
 		document.getElementById(tabId).style.display = "block";
+		tab.onOpen?.();
 	},
 }
 
@@ -468,11 +469,87 @@ const createAccountTab = {
 	}
 }
 
+const gBalanceTab = {
+	tabName: "g-balance",
+	endpoint: "/LocalDashboard/Gazillionite",
+	headers: { "X-MHServerEmu-Dashboard": "1" },
+
+	async onOpen() {
+		const select = document.getElementById("g-balance-email");
+		const result = document.getElementById("g-balance-result");
+		const previousEmail = select.value;
+		select.replaceChildren(new Option("正在讀取帳號…", ""));
+		result.textContent = "";
+
+		try {
+			const response = await fetch(this.endpoint, { headers: this.headers, cache: "no-store" });
+			if (!response.ok)
+				throw new Error("Account list unavailable");
+
+			const accounts = await response.json();
+			select.replaceChildren(new Option(accounts.length ? "請選擇帳號" : "目前沒有帳號", ""));
+			for (const account of accounts)
+				select.add(new Option(account.PlayerName + "（" + account.Email + "）", account.Email));
+			if (accounts.some((account) => account.Email === previousEmail))
+				select.value = previousEmail;
+			else if (accounts.length === 1)
+				select.selectedIndex = 1;
+		} catch {
+			select.replaceChildren(new Option("無法讀取帳號", ""));
+			result.textContent = "請在伺服器這台電腦使用 localhost 開啟 Dashboard。";
+		}
+	},
+
+	initialize() {
+		document.getElementById("g-balance-form").addEventListener("submit", (event) => this.save(event));
+	},
+
+	async save(event) {
+		event.preventDefault();
+		const button = event.currentTarget.querySelector("button[type=submit]");
+		const result = document.getElementById("g-balance-result");
+		const amount = document.getElementById("g-balance-amount").value;
+		const email = document.getElementById("g-balance-email").value.trim();
+		button.disabled = true;
+		result.textContent = "儲存中…";
+
+		try {
+			const response = await fetch(this.endpoint, {
+				method: "POST",
+				headers: { ...this.headers, "Content-Type": "application/json" },
+				body: JSON.stringify({ Email: email, Balance: amount }),
+			});
+
+			if (response.status === 403) {
+				result.textContent = "請在伺服器這台電腦使用 localhost 開啟 Dashboard。";
+				return;
+			}
+			if (!response.ok)
+				throw new Error("Request failed");
+
+			const data = await response.json();
+			const messages = {
+				0: "已儲存 " + BigInt(amount).toLocaleString("zh-TW") + " G。",
+				1: "請確認帳號與餘額。餘額須為 0 到 9,223,372,036,854,775,807 的整數。",
+				2: "資料庫儲存失敗，請查看伺服器日誌。",
+				5: "找不到這個帳號。",
+				11: "帳號仍在線上或正在登出。請退出遊戲後再試。",
+			};
+			result.textContent = messages[data.Result] ?? "儲存失敗。";
+		} catch {
+			result.textContent = "無法完成請求，請確認伺服器正在執行。";
+		} finally {
+			button.disabled = false;
+		}
+	},
+}
+
 tabManager.initialize([
 	serverStatusTab,
 	metricsTab,
 	regionReportTab,
-	createAccountTab
+	createAccountTab,
+	gBalanceTab
 ]);
 
 })();

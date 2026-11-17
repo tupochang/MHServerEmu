@@ -22,6 +22,7 @@ namespace MHServerEmu.PlayerManagement.Players
         PasswordInvalid,
         FlagAlreadySet,
         FlagNotSet,
+        PlayerOnline,
     }
 
     /// <summary>

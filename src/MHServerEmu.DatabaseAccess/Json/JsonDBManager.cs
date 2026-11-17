@@ -127,6 +127,32 @@ namespace MHServerEmu.DatabaseAccess.Json
             return true;
         }
 
+        public IReadOnlyList<AccountIdentity> GetAccountIdentities()
+        {
+            return [new(_account.Email, _account.PlayerName)];
+        }
+
+        public bool SetGazillioniteBalance(DBAccount account, long balance)
+        {
+            if (account != _account)
+                return false;
+
+            long previousBalance = account.Player.GazillioniteBalance;
+            account.Player.GazillioniteBalance = balance;
+            try
+            {
+                if (SavePlayerData(account))
+                    return true;
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorException(e, nameof(SetGazillioniteBalance));
+            }
+
+            account.Player.GazillioniteBalance = previousBalance;
+            return false;
+        }
+
         #region Guilds
 
         // TODO: Guilds are currently not supported by the JSON backend.
