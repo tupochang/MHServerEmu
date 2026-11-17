@@ -4,6 +4,8 @@ If you would like to ask questions or get up to date information, please feel fr
 
 ## Setup
 
+[繁體中文安裝指南](../README.zh-TW.md)
+
 If this is your first time using MHServerEmu, you may be interested in this.
 
 - [Initial Setup](./Setup/InitialSetup.md) - stable build setup instructions.

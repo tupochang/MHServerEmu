@@ -1,5 +1,7 @@
 # MHServerEmu
 
+[繁體中文安裝指南](./README.zh-TW.md)
+
 MHServerEmu is a server emulator for Marvel Heroes.
 
 The following versions of the game client are supported:
